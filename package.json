@@ -1,0 +1,17 @@
+{
+  "name": "md-blog",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Simple Node.js blog serving Markdown posts from a folder",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "gray-matter": "^4.0.3",
+    "marked": "^12.0.2",
+    "sanitize-html": "^2.13.0"
+  }
+}
