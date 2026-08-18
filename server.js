@@ -67,6 +67,7 @@ async function readPost(slug) {
   return {
     slug,
     title: typeof data.title === 'string' ? data.title : slug,
+    author: typeof data.author === 'string' ? data.author : '',
     date: data.date ? new Date(data.date) : null,
     content
   };
@@ -135,7 +136,7 @@ app.get('/', async (req, res) => {
         .map(
           (p) => `<li>
       <a href="/posts/${encodeURIComponent(p.slug)}"><strong>${escapeHtml(p.title)}</strong></a><br>
-      <time>${escapeHtml(formatDate(p.date))}</time>
+      <time>${escapeHtml(formatDate(p.date))}</time>${p.author ? ` &middot; ${escapeHtml(p.author)}` : ''}
     </li>`
         )
         .join('')}</ul>`
@@ -155,6 +156,9 @@ ${error ? `<p class="error">${escapeHtml(error)}</p>` : ''}
   <label>Title
     <input name="title" required maxlength="120" value="${escapeHtml(values.title || '')}">
   </label>
+  <label>Author
+    <input name="author" maxlength="80" value="${escapeHtml(values.author || '')}">
+  </label>
   <label>Content (Markdown)
     <textarea name="content" required>${escapeHtml(values.content || '')}</textarea>
   </label>
@@ -164,6 +168,7 @@ ${error ? `<p class="error">${escapeHtml(error)}</p>` : ''}
 
 app.post('/new', async (req, res) => {
   const title = String(req.body.title || '').trim();
+  const author = String(req.body.author || '').trim();
   const content = String(req.body.content || '').trim();
 
   if (!title || !content) {
@@ -178,7 +183,7 @@ app.post('/new', async (req, res) => {
       .send(layout('New post', renderForm(req.body, 'Title must contain some letters or numbers.')));
   }
 
-  const front = `---\ntitle: ${JSON.stringify(title)}\ndate: ${new Date().toISOString().slice(0, 10)}\n---\n\n`;
+  const front = `---\ntitle: ${JSON.stringify(title)}\n${author ? `author: ${JSON.stringify(author)}\n` : ''}date: ${new Date().toISOString().slice(0, 10)}\n---\n\n`;
 
   try {
     // 'wx' fails if the post already exists, so we never overwrite.
@@ -205,7 +210,7 @@ app.get('/posts/:slug', async (req, res) => {
       post.title,
       `<article>
   <h1>${escapeHtml(post.title)}</h1>
-  <time>${escapeHtml(formatDate(post.date))}</time>
+  <time>${escapeHtml(formatDate(post.date))}</time>${post.author ? ` &middot; ${escapeHtml(post.author)}` : ''}
   ${renderMarkdown(post.content)}
 </article>
 <p><a href="/">&larr; All posts</a></p>`
